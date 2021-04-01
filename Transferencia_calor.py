@@ -35,11 +35,6 @@ class Radiacion:
         return f'El valor de {Radiacion.incog} es de {self.solv}'
 
 
-    @classmethod
-    def __repr__(cls):
-        return 'Ejemplo de uso:\n\tRey_1 = Reynolds(Um=10, d=0.0254, U=2.57E-5)\n\tRey_1.Densidad(P=2*1.0132E5, R=287, T=473)\n\tprint(Rey_1.solucion())'
-
-
 if __name__ == '__main__':
     Radia_1 = Radiacion(q=None, A=5, T1=564, T2=515, E=1)
     print(Radia_1.solucion())
@@ -84,14 +79,10 @@ class Reynolds:
 
     def solucion(self, solv=None):
 
-        ecuacion = Eq(((self.densidad*self.Um*self.d)/self.U)-self.Re, 0)
-        self.solv = solve(ecuacion, Reynolds.incog)[0]
+        ecuacion = Eq(((self.densidad*self.Um*self.d)/self.U), self.Re)
+        self.solv, *_  = solve(ecuacion, Reynolds.incog)
         return f'El valor de {Reynolds.incog} es de {self.solv}'
 
-
-    @classmethod
-    def __repr__(cls):
-        return 'Ejemplo de uso:\n\tRey_1 = Reynolds(Um=10, d=0.0254, U=2.57E-5)\n\tRey_1.Densidad(P=2*1.0132E5, R=287, T=473)\n\tprint(Rey_1.solucion())'
 
 
 if __name__ == '__main__':
@@ -105,54 +96,50 @@ if __name__ == '__main__':
 # -----------------------------------------------------------Nusselt----------------------------------
 
 
-# class Nusselt(Reynolds):
-#     incog = 0
+class Nusselt(Reynolds):
+    incog = 0
 
-#     def __init__(self, Re, Um, d, U, h, k, Pr, n):
-#         super().__init__(Re, Um, d, U)
-#         self.h = h
-#         self.k = k
-#         self.Pr = Pr
-#         self.n = n
-#         if self.h == None:
-#             self.h = symbols('h')
-#             Nusselt.incog = self.h
-#         elif self.k == None:
-#             self.k = symbols('k')
-#             Nusselt.incog = self.k
-#         elif self.Pr == None:
-#             self.Pr = symbols('Pr')
-#             Nusselt.incog = self.Pr
-#         elif self.n == None:
-#             self.n = symbols('n')
-#             Nusselt.incog = self.n
+    def __init__(self, Re, d, h, k, Pr, n):
+        self.Re = Re
+        self.d = d
+        self.h = h
+        self.k = k
+        self.Pr = Pr
+        self.n = n
+        if self.Re == None:
+            self.Re = symbols('Re')
+            Nusselt.incog = self.Re
+        elif self.d == None:
+            self.d = symbols('d')
+            Nusselt.incog = self.d
+        elif self.h == None:
+            self.h = symbols('h')
+            Nusselt.incog = self.h
+        elif self.k == None:
+            self.k = symbols('k')
+            Nusselt.incog = self.k
+        elif self.Pr == None:
+            self.Pr = symbols('Pr')
+            Nusselt.incog = self.Pr
+        elif self.n == None:
+            self.n = symbols('n')
+            Nusselt.incog = self.n
 
-#     def NPr(self):
-#         N_Pr = (0.023*(self.solv**0.8)*self.Pr**self.n)
-#         return N_Pr
+    def NPr(self):
+        N_Pr = 0.023*(pow(self.Re,0.8)*pow(self.Pr,self.n))
+        return N_Pr
 
-#     def Nh(self):
-#         N_h = (self.h*self.d)/self.k
-#         return N_h
+    def Nh(self):
+        N_h = (self.h*self.d)/self.k
+        return N_h
 
-#     def solucion_total(self):
-#         ecuacion = Eq(self.NPr()-self.Nh(), 0)
-#         self.solv = solve(ecuacion, Nusselt.incog)[0]
-#         return f'El valor de {Nusselt.incog} es de {self.solv}'
-
-#     @classmethod
-#     def __repr__(cls):
-#         return 'Ejemplo de uso:\n\tRey_1 = Reynolds(Um=10, d=0.0254, U=2.57E-5)\n\tRey_1.Densidad(P=2*1.0132E5, R=287, T=473)\n\tprint(Rey_1.solucion())'
+    def solucion_total(self):
+        ecuacion = Eq(self.NPr(), self.Nh())
+        self.solv, *_ = solve(ecuacion, Nusselt.incog)
+        return f'El valor de {Nusselt.incog} es de {self.solv}'
 
 
-# # if __name__ == '__main__':
-# #     nuss_1 = Nusselt(Re=None, Um=10, d=0.0254, U=2.57E-5,
-# #                      h=None, k=0.0386, Pr=0.681, n=0.4)
-# #     # nuss_1 = Nusselt(Re=14753.0811949218, Um=10, d=0.0254, U=2.57E-5,
-# #     #                  h=None, k=0.0386, Pr=0.681, n=0.4)
-# #     nuss_1.Densidad(P=2*1.0132E5, R=287, T=473)
-# #     print(nuss_1.solucion())
-
-# #     nuss_1.NPr()
-# #     nuss_1.Nh()
-# #     print(nuss_1.solucion_total())
+if __name__ == '__main__':
+    print('Desde Nusselt')
+    nuss_1 = Nusselt(Re=14756,h=None, d=0.0254, k=0.0386, Pr=0.681, n=0.4)
+    print(nuss_1.solucion_total())
